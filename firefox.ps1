@@ -1,25 +1,24 @@
-$workdir = "c:\installer\"
+Write-Host "Installing Firefox..." -ForegroundColor Cyan
 
-If (Test-Path -Path $workdir -PathType Container)
-{ Write-Host "$workdir already exists" -ForegroundColor Red}
-ELSE
-{ New-Item -Path $workdir  -ItemType directory }
+# Define paths
+$desktop = [Environment]::GetFolderPath("Desktop")
+$installer = Join-Path $desktop "Firefox_Installer.exe"
 
-$source = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
-$destination = "$workdir\firefox.exe"
+# Official Firefox 64-bit EN-US direct link (always latest)
+$url = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
 
-if (Get-Command 'Invoke-Webrequest')
-{
-     Invoke-WebRequest $source -OutFile $destination
-}
-else
-{
-    $WebClient = New-Object System.Net.WebClient
-    $webclient.DownloadFile($source, $destination)
+# Download installer silently
+try {
+    Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing
+} catch {
+    Write-Host "Download failed." -ForegroundColor Red
+    exit 1
 }
 
-Start-Process -FilePath "$workdir\firefox.exe" -ArgumentList "/S"
-
-Start-Sleep -s 35
-
-rm -Force $workdir/firefox*
+# Run installer silently
+try {
+    Start-Process -FilePath $installer -ArgumentList "/silent" -NoNewWindow
+} catch {
+    Write-Host "Installer failed to start." -ForegroundColor Red
+    exit 1
+}
