@@ -1,1 +1,1 @@
-Its just a chrome installer with irm/iex
+just some browser installers with irm/iex
